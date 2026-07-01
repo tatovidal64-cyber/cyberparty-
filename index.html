@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CyberParty — Cybersecurity Board Game</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<button id="settings-toggle" class="settings-toggle" title="Configuración / Settings" aria-label="Settings" aria-expanded="false">
+  <svg viewBox="0 0 100 100" aria-hidden="true"><path fill-rule="evenodd" d="M 44.00 12.98 L 44.76 3.29 L 55.24 3.29 L 56.00 12.98 A 37.50 37.50 0 0 1 63.32 14.94 L 68.82 6.93 L 77.89 12.17 L 73.70 20.94 A 37.50 37.50 0 0 1 79.06 26.30 L 87.83 22.11 L 93.07 31.18 L 85.06 36.68 A 37.50 37.50 0 0 1 87.02 44.00 L 96.71 44.76 L 96.71 55.24 L 87.02 56.00 A 37.50 37.50 0 0 1 85.06 63.32 L 93.07 68.82 L 87.83 77.89 L 79.06 73.70 A 37.50 37.50 0 0 1 73.70 79.06 L 77.89 87.83 L 68.82 93.07 L 63.32 85.06 A 37.50 37.50 0 0 1 56.00 87.02 L 55.24 96.71 L 44.76 96.71 L 44.00 87.02 A 37.50 37.50 0 0 1 36.68 85.06 L 31.18 93.07 L 22.11 87.83 L 26.30 79.06 A 37.50 37.50 0 0 1 20.94 73.70 L 12.17 77.89 L 6.93 68.82 L 14.94 63.32 A 37.50 37.50 0 0 1 12.98 56.00 L 3.29 55.24 L 3.29 44.76 L 12.98 44.00 A 37.50 37.50 0 0 1 14.94 36.68 L 6.93 31.18 L 12.17 22.11 L 20.94 26.30 A 37.50 37.50 0 0 1 26.30 20.94 L 22.11 12.17 L 31.18 6.93 L 36.68 14.94 A 37.50 37.50 0 0 1 44.00 12.98 Z M 71.50 50.00 A 21.50 21.50 0 1 0 28.50 50.00 A 21.50 21.50 0 1 0 71.50 50.00 Z"/></svg>
+</button>
+<div id="settings-panel" class="settings-panel" role="menu" aria-label="Settings">
+  <div class="settings-head" data-i18n="set_title">Settings</div>
+  <div class="settings-row">
+    <span class="srow-label" data-i18n="set_lang">Language</span>
+    <button id="lang-toggle" class="lang-toggle" title="Language / Idioma" aria-label="Switch language"><span id="lang-label">EN</span></button>
+  </div>
+  <div class="settings-row">
+    <span class="srow-label" data-i18n="set_music">Music</span>
+    <button id="music-toggle" class="music-toggle on" title="Música on / off" aria-label="Toggle background music">🎵</button>
+  </div>
+  <div class="settings-row">
+    <span class="srow-label" data-i18n="set_theme">Theme</span>
+    <button id="theme-toggle" class="theme-toggle" title="Modo claro / oscuro" aria-label="Toggle light or dark theme"><span class="tt-knob"></span></button>
+  </div>
+  <div class="settings-board">
+    <div class="sboard-head"><span class="srow-label" data-i18n="set_board">Customize board</span><span id="pal-current" class="pal-current" data-i18n="pal_default">Default</span></div>
+    <div class="pal-swatches" id="pal-swatches" role="radiogroup" aria-label="Board palette">
+      <button class="pal-sw sw-default" data-pal="default" role="radio" aria-checked="true" title="Default"></button>
+      <button class="pal-sw sw-terminal" data-pal="terminal" role="radio" aria-checked="false" title="Terminal"></button>
+      <button class="pal-sw sw-alert" data-pal="alert" role="radio" aria-checked="false" title="Alert"></button>
+      <button class="pal-sw sw-security" data-pal="security" role="radio" aria-checked="false" title="Security"></button>
+      <button class="pal-sw sw-neon" data-pal="neon" role="radio" aria-checked="false" title="Neon"></button>
+    </div>
+  </div>
+</div>
+<div class="copyright">© 2026 Third Term Learning</div>
+
+<!-- ===================== SETUP ===================== -->
+<section id="setup-screen" class="screen active">
+  <div class="brandmark"><div class="logo">CYBER<span class="dot">P</span>ARTY</div></div>
+  <div class="tagline"></div>
+
+  <div class="setup-card">
+    <div class="f11-banner" data-i18n-html="f11_banner">⛶ Press <b>F11</b> for fullscreen</div>
+    <h2 data-i18n="setup_title">Set up your game</h2>
+    <p class="setup-sub" data-i18n="setup_sub">Choose how many players, then pick a token for each. Pass &amp; play on one device.</p>
+
+    <div class="count-row" id="count-row"></div>
+
+    <div class="players-setup" id="players-setup"></div>
+
+    <div class="rules-toggle" id="rules-toggle" data-i18n="rules_toggle">How to play ▾</div>
+    <div class="rules-box" id="rules-box">
+      <p class="howto-intro" data-i18n="howto_intro">CyberParty is a gamified learning game. Move around the board, answer questions, and rack up points — the more you know, the higher you score.</p>
+      <div class="howto-grid">
+        <div class="howto-card">
+          <div class="hc-ico" style="background:var(--green)">🎲</div>
+          <div class="hc-txt"><h4 data-i18n="howto_move_h">Move &amp; Answer</h4><p data-i18n="howto_move_p">Roll the dice, move around the board, and answer the question on each tile. Every correct answer earns points.</p></div>
+        </div>
+        <div class="howto-card">
+          <div class="hc-ico" style="background:var(--brand)">⭐</div>
+          <div class="hc-txt"><h4 data-i18n="howto_points_h">Earn Points</h4><p data-i18n="howto_points_p">Brand tiles give you points when you answer correctly. Higher-value tiles are worth more.</p></div>
+        </div>
+        <div class="howto-card">
+          <div class="hc-ico" style="background:var(--red)">❓</div>
+          <div class="hc-txt"><h4 data-i18n="howto_special_h">Bonus &amp; Penalty Tiles</h4><p data-i18n="howto_special_p">Quiz, Luck and Challenge tiles give bonus points. Wrong answers and penalty tiles cost you points.</p></div>
+        </div>
+        <div class="howto-card">
+          <div class="hc-ico" style="background:var(--azure)">☁️</div>
+          <div class="hc-txt"><h4 data-i18n="howto_lms_h">LMS System</h4><p data-i18n="howto_lms_p">Connects to your LMS: your quiz accuracy and final standing are reported automatically.</p></div>
+        </div>
+        <div class="howto-card howto-win">
+          <div class="hc-ico" style="background:var(--gold)">🏆</div>
+          <div class="hc-txt"><h4 data-i18n="howto_win_h">How to Win</h4><p data-i18n="howto_win_p">The player with the most points after the set number of rounds wins.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="start-btn" id="start-btn" data-i18n="start_btn" disabled>Start Game</button>
+  </div>
+</section>
+
+<!-- ===================== GAME ===================== -->
+<section id="game-screen" class="screen">
+  <div class="topbar">
+    <div class="tb-logo">CYBER<span class="dot">P</span>ARTY</div>
+    <div class="spacer"></div>
+    <div class="scorm-pill" id="scorm-pill"><span class="led"></span><span id="scorm-text">Standalone</span></div>
+    <div class="tb-money" id="tb-money"></div>
+  </div>
+
+  <div class="play-area">
+    <div class="board-wrap">
+      <div class="skyline" aria-hidden="true"><svg viewBox="0 0 1200 200" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg"><g fill="currentColor"><rect x="20" y="92" width="72" height="108" rx="3"/></g></svg></div>
+      <div id="board"></div>
+    </div>
+    <aside id="sidebar">
+      <div class="panel cur-card" id="cur-card"></div>
+      <div class="panel">
+        <h3 data-i18n="players">Players</h3>
+        <div class="players-list" id="players-list"></div>
+      </div>
+      <div class="panel" id="lastcard-panel" style="display:none">
+        <h3 data-i18n="last_card">Last Card</h3>
+        <div class="lastcard" id="lastcard"></div>
+      </div>
+      <div class="panel">
+        <h3 data-i18n="activity">Activity</h3>
+        <div class="log" id="log"></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ===================== END ===================== -->
+<section id="end-screen" class="screen">
+  <div class="end-card">
+    <div class="brandmark" style="justify-content:center"><div class="logo" style="font-size:clamp(20px,5vw,34px)">CYBER<span class="dot">P</span>ARTY</div></div>
+    <h1 data-i18n="game_over">Game Over</h1>
+    <div class="winner" id="winner-line"></div>
+    <div class="rank" id="rank"></div>
+    <div class="scorm-report" id="scorm-report"></div>
+    <button class="again-btn" id="again-btn" data-i18n="play_again">Play Again</button>
+  </div>
+</section>
+
+<!-- ===================== MODAL ROOT ===================== -->
+<div class="modal-bg" id="modal-bg"><canvas id="fx-canvas"></canvas><div class="modal" id="modal"></div></div>
+
+<script src="script.js"></script>
+</body>
+</html>
