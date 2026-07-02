@@ -448,6 +448,8 @@ body:not(.light) .board-wrap::before{background:radial-gradient(58% 46% at 50% 2
   font-weight:800;font-size:13px;letter-spacing:.3px;padding:9px 12px;border-radius:12px;
   box-shadow:0 8px 18px -10px var(--brand);}
 .f11-banner b{background:rgba(255,255,255,.22);padding:1px 7px;border-radius:6px;}
+/* F11 es un atajo de teclado de escritorio; en celular no existe, así que el banner no se muestra */
+@media(max-width:859px){.f11-banner{display:none;}}
 
 /* ===================== HOW-TO-PLAY INFOGRAPHIC ===================== */
 .howto-intro{font-size:13px;color:#33406b;line-height:1.5;margin:0 0 12px;}
