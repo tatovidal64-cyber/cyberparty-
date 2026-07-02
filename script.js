@@ -309,7 +309,7 @@ function setLang(l){
   LANG = (l==='es') ? 'es' : 'en';
   try{ localStorage.setItem('cyberparty-lang', LANG); }catch(e){}
   applyI18n();
-  if(typeof state!=='undefined' && state){ try{ buildBoard(); renderAll(); }catch(e){} }
+  if(typeof state!=='undefined' && state){ try{ buildBoard(); renderAll(); fitTileTextSoon(); }catch(e){} }
   else { try{ renderCountRow(); renderPlayersSetup(); }catch(e){} }
 }
 
@@ -1050,6 +1050,68 @@ function startGame(){
 
 /* Entrada compartida al juego: pill SCORM + tablero + pantalla + primer render.
    La usan startGame() (local) y el modo online una vez que 'state' está armado. */
+/* ============================================================
+   AJUSTE AUTOMÁTICO DE LETRA EN CASILLAS
+   Red de seguridad además del CSS: después de dibujar el tablero
+   (o si cambia el tamaño de pantalla / rotación / idioma), mide si
+   el nombre de alguna casilla se pasa de su propio cuadro y, sólo
+   en ese caso puntual, le baja la letra de a medio pixel hasta que
+   entra entera. Nunca la agranda más allá del tamaño normal del CSS.
+   Así, sea cual sea el celular, el zoom, o si una traducción queda
+   más larga que la otra, ninguna palabra se corta a la mitad.
+   ============================================================ */
+function fitTileText(){
+  document.querySelectorAll('#board .tile').forEach(tile=>{
+    const nameEl=tile.querySelector('.tname, .tspecial');
+    if(nameEl){
+      nameEl.style.fontSize='';                 // volver primero al tamaño normal del CSS
+      let size=parseFloat(getComputedStyle(nameEl).fontSize);
+      const minSize=7.5;                          // piso de legibilidad del texto
+      let guard=0;
+      while(nameEl.scrollHeight>nameEl.clientHeight+0.5 && size>minSize && guard<14){
+        size-=0.5;
+        nameEl.style.fontSize=size+'px';
+        guard++;
+      }
+    }
+    // último recurso, sólo si la casilla entera sigue sin entrar (celulares
+    // muy angostos, casillas de Suerte/Desafío/Hackeo): achicar también el
+    // ícono emoji (font-size + line-height, que sí reducen el alto real).
+    const iconEl=tile.querySelector('.ticon');
+    if(iconEl){
+      iconEl.style.fontSize=''; iconEl.style.lineHeight='';
+      let iguard=0;
+      while(tile.scrollHeight>tile.clientHeight+0.5 && iguard<10){
+        const cur=parseFloat(getComputedStyle(iconEl).fontSize);
+        const next=cur-1;
+        if(next<7) break;
+        iconEl.style.fontSize=next+'px';
+        iconEl.style.lineHeight='0.85';
+        iguard++;
+      }
+    }
+  });
+}
+let _fitTileRAF=null;
+function scheduleFitTileText(){
+  if(_fitTileRAF) cancelAnimationFrame(_fitTileRAF);
+  _fitTileRAF=requestAnimationFrame(()=>{
+    _fitTileRAF=null;
+    const gs=document.getElementById('game-screen');
+    if(gs && gs.classList.contains('active')) fitTileText();
+  });
+}
+window.addEventListener('resize', scheduleFitTileText);
+window.addEventListener('orientationchange', scheduleFitTileText);
+function fitTileTextSoon(){
+  scheduleFitTileText();
+  setTimeout(scheduleFitTileText, 250);
+  setTimeout(scheduleFitTileText, 700);
+  setTimeout(scheduleFitTileText, 1500);
+}
+if(document.fonts && document.fonts.ready){ document.fonts.ready.then(fitTileTextSoon); }
+else { fitTileTextSoon(); }
+
 function enterGame(){
   const connected=SCORM.init();
   $("#scorm-pill").classList.toggle("on",connected);
@@ -1058,6 +1120,7 @@ function enterGame(){
   showScreen("game-screen");
   log(t('game_started')+" — "+state.players.length+" "+t('players').toLowerCase()+". "+t('good_luck'));
   renderAll();
+  fitTileTextSoon();
   if(typeof NET!=='undefined' && NET.afterEnterGame) NET.afterEnterGame();
 }
 
@@ -1725,7 +1788,7 @@ const NET = (function(){
     .lob-prow .rn{flex:1;font:600 14px/1 var(--sans,system-ui);color:var(--ink,#0E1430)}
     .lob-prow .rb{font:600 10px/1 var(--sans,system-ui);text-transform:uppercase;letter-spacing:.06em;color:var(--muted,#5b6790)}
     .lob-prow.nope{opacity:.6}
-    .online-flag{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:30;font:600 11px/1 var(--mono,ui-monospace,monospace);letter-spacing:.08em;color:var(--brand,#11ACED);background:rgba(8,14,22,.82);border:1px solid var(--brand,#11ACED);border-radius:999px;padding:6px 14px;white-space:nowrap}
+    .online-flag{flex:0 0 auto;display:flex;align-items:center;justify-content:center;text-align:center;font:600 11px/1.4 var(--mono,ui-monospace,monospace);letter-spacing:.08em;color:var(--brand,#11ACED);background:rgba(8,14,22,.55);border-bottom:1px solid rgba(120,160,220,.25);padding:6px 10px;white-space:normal}
     .setup-card.online-mode #count-row,.setup-card.online-mode #players-setup,.setup-card.online-mode #rules-toggle,.setup-card.online-mode #rules-box,.setup-card.online-mode #start-btn,.setup-card.online-mode .setup-sub{display:none!important}
     .setup-card:not(.online-mode) #cp-lobby{display:none}
     `;
@@ -2088,12 +2151,16 @@ const NET = (function(){
      ==================================================================== */
   function afterEnterGame(){
     if(mode==='off') return;
-    // bandera persistente sobre el tablero (no la pisa renderAll)
-    const wrap=document.querySelector('.board-wrap');
-    if(wrap && !document.getElementById('online-flag')){
-      const f=document.createElement('div'); f.id='online-flag'; f.className='online-flag';
-      f.textContent=ntf('online_badge',{code:code});
-      wrap.appendChild(f);
+    // franja propia debajo de la barra superior (antes flotaba encima
+    // del tablero y tapaba la primera fila de casillas — se sacó de
+    // .board-wrap y ahora vive en su propia fila, fuera del tablero)
+    if(!document.getElementById('online-flag')){
+      const topbar=document.querySelector('#game-screen .topbar');
+      if(topbar && topbar.parentNode){
+        const f=document.createElement('div'); f.id='online-flag'; f.className='online-flag';
+        f.textContent=ntf('online_badge',{code:code});
+        topbar.insertAdjacentElement('afterend', f);
+      }
     }
     gateControls();
   }

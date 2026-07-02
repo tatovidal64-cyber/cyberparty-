@@ -1050,7 +1050,7 @@ body{background-attachment:fixed!important;}
 /* casillas de Suerte/Desafío/Hackeo: un poco menos de aire entre
    ícono y etiqueta para que "Challenge"/"Desafío" entre completo
    incluso en pantallas de celular angostas. */
-.tile.luck,.tile.challenge,.tile.hack{gap:1px;padding-top:2px;padding-bottom:1px;}
+.tile.luck,.tile.challenge,.tile.hack{gap:0;padding-top:1px;padding-bottom:0;}
 .tile.luck .ticon,.tile.challenge .ticon,.tile.hack .ticon{font-size:1.5em;}
 .tile.luck .tspecial,.tile.challenge .tspecial,.tile.hack .tspecial{line-height:1;}
 
