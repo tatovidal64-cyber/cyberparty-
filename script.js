@@ -31,6 +31,7 @@ const TEXTS = {
     play_again:       "Play Again",
     avatar_prompt:    "Choose an avatar (your face)",
     player:           "Player",
+    round_label:      "Round",
     continue:         "Continue",
     correct_fb:       "\u2705 Correct! ",
     wrong_fb:         "\u274C Not quite. ",
@@ -70,12 +71,12 @@ const TEXTS = {
     tile_ddos:        "DDoS",
     tile_zeroday:     "Zero-Day",
     tile_sqli:        "SQL Injection",
-    tok_shield:       "Shield",
-    tok_lock:         "Lock",
-    tok_key:          "Key",
-    tok_bug:          "Bug",
-    tok_bot:          "Bot",
-    tok_agent:        "Agent",
+    tok_red:          "Red",
+    tok_orange:       "Orange",
+    tok_yellow:       "Yellow",
+    tok_green:        "Green",
+    tok_blue:         "Blue",
+    tok_violet:       "Violet",
     center_sub:       "THINK BEFORE YOU CLICK",
     f11_banner:       "⛶ Press <b>F11</b> for fullscreen",
     tagline:          "The Board Game · Corporate Learning",
@@ -162,6 +163,7 @@ const TEXTS = {
     play_again:       "Jugar de nuevo",
     avatar_prompt:    "Elegí un avatar (tu cara)",
     player:           "Jugador",
+    round_label:      "Ronda",
     continue:         "Continuar",
     correct_fb:       "\u2705 Correcto! ",
     wrong_fb:         "\u274C Casi. ",
@@ -201,12 +203,12 @@ const TEXTS = {
     tile_ddos:        "DDoS",
     tile_zeroday:     "Día cero",
     tile_sqli:        "Inyección SQL",
-    tok_shield:       "Escudo",
-    tok_lock:         "Candado",
-    tok_key:          "Llave",
-    tok_bug:          "Bicho",
-    tok_bot:          "Bot",
-    tok_agent:        "Agente",
+    tok_red:          "Rojo",
+    tok_orange:       "Naranja",
+    tok_yellow:       "Amarillo",
+    tok_green:        "Verde",
+    tok_blue:         "Azul",
+    tok_violet:       "Violeta",
     center_sub:       "PENSÁ ANTES DE HACER CLIC",
     f11_banner:       "⛶ Apretá <b>F11</b> para pantalla completa",
     tagline:          "Juego de tablero · Capacitación corporativa",
@@ -332,7 +334,8 @@ const ICONS = {
   bolt:'<svg viewBox="0 0 24 24"><path d="M13.2 2 5 13.2h5l-1.6 8.8 8.6-12h-5.4z"/></svg>',
   database:'<svg viewBox="0 0 24 24"><path d="M12 3c4.4 0 8 1.3 8 3s-3.6 3-8 3-8-1.3-8-3 3.6-3 8-3zM4 9.4c1.7 1.1 4.6 1.7 8 1.7s6.3-.6 8-1.7v3.4c0 1.7-3.6 3-8 3s-8-1.3-8-3zM4 15.3c1.7 1.1 4.6 1.7 8 1.7s6.3-.6 8-1.7V18.7c0 1.7-3.6 3-8 3s-8-1.3-8-3z"/></svg>',
   mask:'<svg viewBox="0 0 24 24"><path fill-rule="evenodd" d="M3 8.6C6 7 9 6.4 12 6.4s6 .6 9 2.2c0 4-2 7.2-5 7.2a3.6 3.6 0 0 1-3-1.7 3.6 3.6 0 0 1-3 1.7c-3 0-5-3.2-5-7.2zm4.2 1.7a1.6 1.6 0 1 0 3.2 0 1.6 1.6 0 0 0-3.2 0zm6.6 0a1.6 1.6 0 1 0 3.2 0 1.6 1.6 0 0 0-3.2 0z"/></svg>',
-  bomb:'<svg viewBox="0 0 24 24"><path d="M14.6 4.3 16.1 2.8l1.4 1.4-1.5 1.5.9.9-1.4 1.4-.9-.9A7 7 0 1 1 13 5.7l.9.9 1.4-1.4z"/><path d="M18.6 2.9a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6z"/></svg>'
+  bomb:'<svg viewBox="0 0 24 24"><path d="M14.6 4.3 16.1 2.8l1.4 1.4-1.5 1.5.9.9-1.4 1.4-.9-.9A7 7 0 1 1 13 5.7l.9.9 1.4-1.4z"/><path d="M18.6 2.9a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6z"/></svg>',
+  terminal:'<svg viewBox="0 0 24 24"><path fill-rule="evenodd" d="M3 5.5A1.5 1.5 0 0 1 4.5 4h15A1.5 1.5 0 0 1 21 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5zM5 8.3v9.7h14V8.3zM5 6v.9h14V6z"/><path d="M6.6 10.3 9.6 12l-3 1.7v-1.3l1.4-.6-1.4-.6zM10.2 14.2h4v1.2h-4z"/></svg>'
 };
 
 /* ============================================================
@@ -387,7 +390,7 @@ const MUSIC = (function(){
   try{ if(localStorage.getItem('cyberparty-music')==='off') wanted=false; }catch(e){}
   function el(){
     if(!audio){
-      audio=new Audio('ikoliks_aj-lounge-jazz-elevator-music-342629.mp3');
+      audio=new Audio('tablero-de-neon.mp3');
       audio.loop=true; audio.preload='auto'; audio.volume=VOL;
     }
     return audio;
@@ -543,19 +546,20 @@ function hackFx(){
   requestAnimationFrame(step);
 }
 const TOKENS = [
-  {id:'shield', tkey:'tok_shield', color:'#11ACED', icon:'shield'},
-  {id:'lock',   tkey:'tok_lock',   color:'#6E2B8B', icon:'lock'},
-  {id:'key',    tkey:'tok_key',    color:'#E0322B', icon:'key'},
-  {id:'bug',    tkey:'tok_bug',    color:'#1B8A4C', icon:'bug'},
-  {id:'bot',    tkey:'tok_bot',    color:'#E5318C', icon:'robot'},
-  {id:'agent',  tkey:'tok_agent',  color:'#C77F1A', icon:'user'}
+  {id:'red',    tkey:'tok_red',    color:'#FA3A2D'},
+  {id:'orange', tkey:'tok_orange', color:'#FC8418'},
+  {id:'yellow', tkey:'tok_yellow', color:'#FDD01C'},
+  {id:'green',  tkey:'tok_green',  color:'#29AD52'},
+  {id:'blue',   tkey:'tok_blue',   color:'#2583F2'},
+  {id:'violet', tkey:'tok_violet', color:'#7E3FDA'}
 ];
 const tokenById = id => TOKENS.find(t=>t.id===id);
-const tokenDisc = (color,icon,cls='') => `<span class="${cls}" style="background:${color}">${ICONS[icon]}</span>`;
+const tokenDisc = (color,cls='') => `<span class="${cls}" style="background:${color}"></span>`;
 
-/* Avatar faces — players pick a face emoji (diverse selection) */
+/* Avatar faces — players pick a face emoji (6 opciones, estilo Apple
+   Color Emoji cuando el dispositivo lo tiene instalado — ver CSS) */
 const AVATARS = [
-  "👦🏻", "👨🏻", "👧🏻", "👩🏻", "👦🏼", "👨🏼", "👧🏼", "👩🏼", "👦🏽", "👨🏽", "👧🏽", "👩🏽", "👨🏿‍🦱", "👧🏿", "👩🏿‍🦱", "👩🏿"
+  "👦🏻", "👧🏻", "👦🏼", "👧🏼", "👦🏽", "👧🏿"
 ];
 const avatarDisc = (p,cls='') => `<span class="${cls} av" style="background:${p.color}">${p.avatar||"😀"}</span>`;
 
@@ -988,7 +992,7 @@ function renderPlayersSetup(){
       const selected=setupAssign[i]===tk.id;
       const opt=document.createElement("button");
       opt.className="token-opt"+(selected?" sel":"")+(takenByOther?" taken":"");
-      opt.innerHTML=`${tokenDisc(tk.color,tk.icon,'tk')}<span>${t(tk.tkey)}</span>`;
+      opt.innerHTML=`${tokenDisc(tk.color,'tk')}<span>${t(tk.tkey)}</span>`;
       opt.onclick=()=>{ if(takenByOther)return; SFX.click(); setupAssign[i]=tk.id; renderPlayersSetup(); updateStart(); };
       grid.appendChild(opt);
     });
@@ -1037,7 +1041,7 @@ function startGame(){
       const parts=lmsName.split(",").map(s=>s.trim());
       name = parts.length===2? (parts[1]+" "+parts[0]) : lmsName;
     }
-    players.push({id:i,name,tokenId:tk.id,color:tk.color,icon:tk.icon,avatar:setupAvatar[i]||AVATARS[i % AVATARS.length],points:0,pos:0,alive:true,correct:0,attempted:0});
+    players.push({id:i,name,tokenId:tk.id,color:tk.color,avatar:setupAvatar[i]||AVATARS[i % AVATARS.length],points:0,pos:0,alive:true,correct:0,attempted:0});
   }
   state={players,current:0,round:1,phase:'idle',dice:[1,1],log:[],lastCard:null,pendingEnd:false};
 
@@ -1070,7 +1074,7 @@ function buildBoard(){
     if(t.color) el.style.setProperty('--neon', t.color);
     let cls="tile", inner="";
     if(t.type==='property'){
-      inner=`<div class="tile-wm" style="color:${t.color}">${ICONS[t.icon]||ICONS.shield}</div>
+      inner=`<div class="ticon-big" style="color:${t.color}">${ICONS[t.icon]||ICONS.shield}</div>
              <div class="band" style="background:${t.color}"></div>
              <div class="lvl"></div>
              <div class="tname">${T(t.tkey)}</div>
@@ -1081,7 +1085,7 @@ function buildBoard(){
     else if(t.type==='go_to_quiz'){ cls+=" corner gotoquiz"; inner=`<div class="ticon">↪</div><div class="tspecial">${T('tile_detour')}</div>`; }
     else if(t.type==='luck'){ cls+=" luck"; inner=`<div class="ticon">🍀</div><div class="tspecial">${T('tile_luck')}</div>`; }
     else if(t.type==='challenge'){ cls+=" challenge"; inner=`<div class="ticon">🎯</div><div class="tspecial">${T('tile_challenge')}</div>`; }
-    else if(t.type==='hack'){ cls+=" hack"; inner=`<div class="ticon">📧</div><div class="tspecial">${T('tile_hack')}</div>`; }
+    else if(t.type==='hack'){ cls+=" hack"; inner=`<div class="ticon">${ICONS.terminal}</div><div class="tspecial">${T('tile_hack')}</div>`; }
     el.className=cls; el.innerHTML=inner;
     const tok=document.createElement("div"); tok.className="tile-tokens"; el.appendChild(tok);
     board.appendChild(el);
@@ -1092,11 +1096,9 @@ function buildBoard(){
     <div class="csub">${t('center_sub')}</div>
     <div class="turn-pill" id="turn-pill"></div>
     <div class="dice-row"><div class="die" id="die1"></div><div class="die" id="die2"></div></div>
-    <button class="btn btn-roll" id="roll-btn">${t('roll_dice')}</button>
-    <button class="btn btn-end" id="end-btn" disabled>${t('end_turn')}</button>`;
+    <button class="btn btn-roll" id="roll-btn">${t('roll_dice')}</button>`;
   $("#board").appendChild(center);
   $("#roll-btn").onclick=rollAndMove;
-  $("#end-btn").onclick=()=>{ SFX.click(); endTurn(); };
 }
 
 /* ============================================================
@@ -1115,7 +1117,6 @@ function renderTokens(movedTilePulse){
     const pawn=document.createElement("div");
     pawn.className="pawn"+(p.id===state.current?" cur":"");
     pawn.style.background=p.color;
-    pawn.innerHTML=ICONS[p.icon];
     tile.appendChild(pawn);
   });
   if(movedTilePulse!=null){
@@ -1142,7 +1143,7 @@ function renderBoardOwners(){
 
 function renderTurnPill(){
   const p=cur();
-  $("#turn-pill").innerHTML=`${avatarDisc(p,'ptok')} ${p.name} · R${state.round}/${MAX_ROUNDS}`;
+  $("#turn-pill").innerHTML=`${avatarDisc(p,'ptok')} ${p.name} · ${t('round_label')} ${state.round}/${MAX_ROUNDS}`;
 }
 function renderTopScore(){
   // en modo online, arriba a la derecha se muestra SIEMPRE tu propio jugador
@@ -1185,7 +1186,6 @@ function renderLog(){
 }
 function renderControls(){
   const rb=$("#roll-btn"); if(rb) rb.disabled = state.phase!=='idle';
-  const eb=$("#end-btn"); if(eb) eb.disabled  = state.phase!=='acted';
   if(typeof NET!=='undefined' && NET.gateControls) NET.gateControls();
 }
 function purchaseFx(idx,color){
@@ -1229,6 +1229,7 @@ function showInfo(title,body,icon){
     $("#modal").innerHTML=`${icon?`<div class="m-icon">${icon}</div>`:""}<h2>${title}</h2><div class="m-body">${body}</div><div class="m-btns"><button class="m-btn primary" id="m-ok">${t('continue')}</button></div>`;
     frameModal();
     $("#modal-bg").classList.add("show");
+    if(typeof NET!=='undefined' && NET.turnEvent) NET.turnEvent('info',{variant:'info',icon,title,body});
     $("#m-ok").onclick=()=>{ SFX.click(); closeModal(); res(); };
   });
 }
@@ -1243,6 +1244,7 @@ function showHack(title,body){
     $("#modal-bg").classList.add("show");
     SFX.hack();
     hackFx();
+    if(typeof NET!=='undefined' && NET.turnEvent) NET.turnEvent('info',{variant:'hack',icon:'📧💀',title,body});
     $("#m-ok").onclick=()=>{ SFX.click(); m.classList.remove('hacked'); closeModal(); res(); };
   });
 }
@@ -1271,6 +1273,7 @@ function askQuestion(contextTitle,opts={}){
     const fill=$("#qtimer-fill");
     const total=QUESTION_TIME*1000;
     const deadline=Date.now()+total;
+    if(typeof NET!=='undefined' && NET.turnEvent) NET.turnEvent('question',{title:contextTitle,qtext:q.q[LANG]||q.q.en,opts:q.o[LANG]||q.o.en,deadline});
     let done=false, rafId=null;
 
     function tick(){
@@ -1302,7 +1305,9 @@ function askQuestion(contextTitle,opts={}){
       const head = correct ? t('correct_fb') : (timedOut ? t('timeout_fb') : t('wrong_fb'));
       let extra = correct ? (opts.correctMsg?`<br><b>${opts.correctMsg}</b>`:"") : (opts.wrongMsg?`<br><b>${opts.wrongMsg}</b>`:"");
       if(correct && speedBonus>0) extra += `<br><b class="speed-line">⚡ ${tf('speed_bonus',{pts:speedBonus})}</b>`;
-      $("#qfeedback").innerHTML=`<div class="feedback ${correct?'ok':'no'}">${head}${q.e[LANG]||q.e.en}${extra}</div><div class="m-btns" style="margin-top:14px"><button class="m-btn primary" id="q-ok">${t('continue')}</button></div>`;
+      const feedbackHtml=`<div class="feedback ${correct?'ok':'no'}">${head}${q.e[LANG]||q.e.en}${extra}</div>`;
+      $("#qfeedback").innerHTML=feedbackHtml+`<div class="m-btns" style="margin-top:14px"><button class="m-btn primary" id="q-ok">${t('continue')}</button></div>`;
+      if(typeof NET!=='undefined' && NET.turnEvent) NET.turnEvent('answer',{chosen,correctIndex:q.a,correct,feedback:feedbackHtml});
       $("#q-ok").onclick=()=>{ SFX.click(); closeModal(); res({correct,q,speed}); };
     }
 
@@ -1326,6 +1331,7 @@ async function rollAndMove(){
   state.phase='moving'; renderControls();
   const p=cur();
   state.dice=[rand(1,6),rand(1,6)];
+  if(typeof NET!=='undefined' && NET.turnEvent) NET.turnEvent('roll',{dice:state.dice,steps:state.dice[0]+state.dice[1],playerId:p.id});
   SFX.dice();
   $("#die1").classList.add("rolling"); $("#die2").classList.add("rolling");
   // quick roll animation
@@ -1350,6 +1356,12 @@ async function rollAndMove(){
   if(state.pendingEnd){ return endGame(); }
   state.phase='acted'; renderControls();
   if(typeof NET!=='undefined' && NET.syncState) NET.syncState();
+  // el botón "Terminar turno" se sacó a pedido de Cecilia: el turno
+  // pasa solo, con una pausa breve para poder leer el resultado.
+  if(typeof NET==='undefined' || NET.mode==='off' || (NET.isMyTurn && NET.isMyTurn())){
+    await sleep(1200);
+    endTurn();
+  }
 }
 
 async function resolveTile(){
@@ -1496,24 +1508,14 @@ renderCountRow();
 renderPlayersSetup();
 
 /* ============================================================
-   THEME TOGGLE (light / dark) — remembers your choice
+   TEMA — se sacó el selector claro/oscuro a pedido de Cecilia.
+   El juego queda siempre en modo oscuro; si alguien tenía guardada
+   una preferencia de "claro" de cuando el toggle todavía existía,
+   se ignora para que no quede trabado ahí sin forma de volver.
    ============================================================ */
 (function(){
-  var KEY='cyberparty-theme';
-  var body=document.body;
-  try{
-    var saved=localStorage.getItem(KEY);
-    if(saved==='dark') body.classList.remove('light');
-    else if(saved==='light') body.classList.add('light');
-  }catch(e){}
-  var btn=document.getElementById('theme-toggle');
-  if(btn){
-    btn.addEventListener('click',function(){
-      SFX.click();
-      body.classList.toggle('light');
-      try{ localStorage.setItem(KEY, body.classList.contains('light')?'light':'dark'); }catch(e){}
-    });
-  }
+  document.body.classList.remove('light');
+  try{ localStorage.removeItem('cyberparty-theme'); }catch(e){}
 })();
 
 /* ============================================================
@@ -1556,43 +1558,15 @@ renderPlayersSetup();
 })();
 
 /* ============================================================
-   PERSONALIZAR TABLERO — paletas de color del tablero.
-   Independiente del modo claro/oscuro. Recuerda la elección.
-   "Predeterminado" = base (ninguna clase pal-* en el body).
+   PALETA DEL TABLERO — se sacó el selector "Personalizar tablero"
+   a pedido de Cecilia. El tablero queda fijo en la paleta Neón
+   (violeta), siempre, sin selector visible. Si alguien tenía otra
+   paleta guardada de cuando el selector existía, se ignora, para
+   que no quede trabado en otra paleta sin forma de volver.
    ============================================================ */
 (function(){
-  var KEY='cyberparty-palette';
-  var body=document.body;
-  var PALS=['default','terminal','alert','security','neon'];
-  var nameEl=document.getElementById('pal-current');
-  var swatches=document.querySelectorAll('.pal-sw');
-
-  function apply(id){
-    if(PALS.indexOf(id)<0) id='default';
-    PALS.forEach(function(p){ if(p!=='default') body.classList.toggle('pal-'+p, p===id); });
-    if(nameEl){ nameEl.setAttribute('data-i18n','pal_'+id); nameEl.textContent=(typeof t==='function')?t('pal_'+id):id; }
-    for(var i=0;i<swatches.length;i++){
-      var on=swatches[i].getAttribute('data-pal')===id;
-      swatches[i].classList.toggle('active',on);
-      swatches[i].setAttribute('aria-checked', on?'true':'false');
-    }
-  }
-
-  var start='default';
-  try{ var saved=localStorage.getItem(KEY); if(saved) start=saved; }catch(e){}
-  apply(start);
-
-  var box=document.getElementById('pal-swatches');
-  if(box){
-    box.addEventListener('click', function(e){
-      var b=e.target.closest ? e.target.closest('.pal-sw') : null;
-      if(!b) return;
-      var id=b.getAttribute('data-pal');
-      if(typeof SFX!=='undefined' && SFX.click) SFX.click();
-      apply(id);
-      try{ localStorage.setItem(KEY,id); }catch(err){}
-    });
-  }
+  document.body.classList.add('pal-neon');
+  try{ localStorage.removeItem('cyberparty-palette'); }catch(e){}
 })();
 
 /* ====================================================================
@@ -1641,7 +1615,8 @@ const NET = (function(){
     you:{en:'you', es:'vos'},
     host:{en:'host', es:'anfitrión'},
     connecting:{en:'Connecting…', es:'Conectando…'},
-    online_badge:{en:'ONLINE · room {code}', es:'ONLINE · sala {code}'}
+    online_badge:{en:'ONLINE · room {code}', es:'ONLINE · sala {code}'},
+    watching_turn:{en:"{name}'s turn — watching", es:'Turno de {name} — mirando'}
   };
   const nt = k => { const e=L[k]; return e ? (e[LANG]||e.en) : k; };
   const ntf = (k,v) => { let s=nt(k); for(const x in v) s=s.replace('{'+x+'}', v[x]); return s; };
@@ -1742,11 +1717,11 @@ const NET = (function(){
     .lob-tok.sel{border-color:var(--brand,#324BAA);background:var(--cream,#EEF3FF);color:var(--brand,#324BAA);transform:translateY(-2px)}
     .lob-tok.taken{opacity:.32;cursor:not-allowed;filter:grayscale(.6)}
     .lob-avs{display:flex;flex-wrap:wrap;gap:6px}
-    .lob-av{width:34px;height:34px;border-radius:9px;border:2px solid var(--line,#dbe3f7);background:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.12s}
+    .lob-av{width:34px;height:34px;border-radius:9px;border:2px solid var(--line,#dbe3f7);background:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.12s;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif}
     .lob-av.sel{border-color:var(--brand,#324BAA);background:var(--cream,#EEF3FF);transform:scale(1.06)}
     .lob-roster{display:flex;flex-direction:column;gap:6px;margin:8px 0 16px}
     .lob-prow{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:10px;border:1px solid var(--line,#dbe3f7);background:var(--paper,#F7FAFF)}
-    .lob-prow .rt{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex:0 0 auto}
+    .lob-prow .rt{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex:0 0 auto;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif}
     .lob-prow .rn{flex:1;font:600 14px/1 var(--sans,system-ui);color:var(--ink,#0E1430)}
     .lob-prow .rb{font:600 10px/1 var(--sans,system-ui);text-transform:uppercase;letter-spacing:.06em;color:var(--muted,#5b6790)}
     .lob-prow.nope{opacity:.6}
@@ -1835,7 +1810,7 @@ const NET = (function(){
     const tokens = TOKENS.map(tk=>{
       const taken=tokenTaken(tk.id), sel=me&&me.token===tk.id;
       return `<button class="lob-tok ${sel?'sel':''} ${taken?'taken':''}" data-tk="${tk.id}">
-        <span class="tk" style="background:${tk.color}">${ICONS[tk.icon]}</span><span>${t(tk.tkey)}</span></button>`;
+        <span class="tk" style="background:${tk.color}"></span><span>${t(tk.tkey)}</span></button>`;
     }).join('');
 
     const avs = AVATARS.map(em=>`<button class="lob-av ${me&&me.avatar===em?'sel':''}" data-av="${em}">${em}</button>`).join('');
@@ -1929,6 +1904,7 @@ const NET = (function(){
   function onMsg(msg){
     if(!msg || msg.from===cid) return;        // ignorar lo propio
     if(msg.t==='state'){ adoptSyncedState(msg.state); return; } // turno en vivo: viene de quien jugó, aplica para host y guest por igual
+    if(msg.t==='turn'){ handleTurnEvent(msg); return; }
     if(mode==='host'){
       if(msg.t==='hello'){
         if(roster.length>=4) return;
@@ -1969,7 +1945,7 @@ const NET = (function(){
     qDeck=[];
     const players=roster.slice().sort((a,b)=>a.seat-b.seat).map((r,i)=>{
       const tk=tokenById(r.token);
-      return {id:i,name:r.name,tokenId:r.token,color:tk.color,icon:tk.icon,avatar:r.avatar,points:0,pos:0,alive:true,correct:0,attempted:0};
+      return {id:i,name:r.name,tokenId:r.token,color:tk.color,avatar:r.avatar,points:0,pos:0,alive:true,correct:0,attempted:0};
     });
     state={players,current:0,round:1,phase:'idle',dice:[1,1],log:[],lastCard:null,pendingEnd:false};
   }
@@ -2002,6 +1978,99 @@ const NET = (function(){
     send({t:'state', state});
   }
 
+  /* ====================================================================
+     VISTA DE ESPECTADOR (Fase 2)
+     Quien tiene el turno, además de mandar el `state` completo al
+     terminar, va emitiendo eventos chicos MIENTRAS juega (tirada,
+     pregunta, respuesta, cartas/hackeo) para que los demás vean la
+     jugada en vivo — no sólo el resultado final. Es sólo espejo visual:
+     el que mira no puede tocar nada, y el `state` completo del final
+     del turno sigue siendo la única fuente de verdad para puntos/pos.
+     ==================================================================== */
+  function broadcastTurnEvent(kind,data){
+    if(mode==='off' || !liveTurns) return;
+    if(!isMyTurn()) return;               // sólo emite quien tiene el turno
+    send({t:'turn', kind, data});
+  }
+
+  function handleTurnEvent(msg){
+    if(mode==='off' || !liveTurns) return;
+    if(isMyTurn()) return;                // uno mismo no se mira de espectador
+    const {kind,data}=msg;
+    if(kind==='roll') animateSpectatorRoll(data);
+    else if(kind==='question') showSpectatorQuestion(data);
+    else if(kind==='answer') revealSpectatorAnswer(data);
+    else if(kind==='info') showSpectatorModal(data);
+  }
+
+  async function animateSpectatorRoll({dice,steps,playerId}){
+    if(!state || typeof renderDie!=='function' || typeof renderTokens!=='function') return;
+    const p=state.players.find(pl=>pl.id===playerId);
+    const d1=document.getElementById('die1'), d2=document.getElementById('die2');
+    if(d1&&d2){
+      d1.classList.add('rolling'); d2.classList.add('rolling');
+      for(let k=0;k<9;k++){ renderDie(d1,rand(1,6)); renderDie(d2,rand(1,6)); await sleep(70+k*16); }
+      renderDie(d1,dice[0]); renderDie(d2,dice[1]);
+      d1.classList.remove('rolling'); d2.classList.remove('rolling');
+    }
+    if(!p) return;
+    await sleep(330);
+    for(let i=0;i<steps;i++){
+      await sleep(360);
+      p.pos=(p.pos+1)%BOARD.length;
+      renderTokens();
+    }
+    renderTokens(p.pos);
+  }
+
+  function spectateTag(){
+    const name=(state && state.players[state.current]) ? state.players[state.current].name : '';
+    return `<div class="spectate-tag">👀 ${ntf('watching_turn',{name})}</div>`;
+  }
+
+  function showSpectatorQuestion({title,qtext,opts,deadline}){
+    const modal=document.getElementById('modal'), bg=document.getElementById('modal-bg');
+    if(!modal||!bg) return;
+    const optHtml=opts.map((o,i)=>`<button class="opt" data-i="${i}" disabled>${o}</button>`).join('');
+    modal.innerHTML=spectateTag()+`<div class="m-kind">${title}</div>
+      <div class="qtimer"><div class="qtimer-fill" id="spec-qtimer-fill"></div></div>
+      <div class="m-q">${qtext}</div><div id="opts">${optHtml}</div><div id="qfeedback"></div>`;
+    if(typeof frameModal==='function') frameModal();
+    bg.classList.add('show');
+    const fill=document.getElementById('spec-qtimer-fill');
+    if(fill && deadline){
+      const total=Math.max(1,deadline-Date.now());
+      function tick(){
+        const left=deadline-Date.now();
+        const frac=Math.max(0,Math.min(1,left/total));
+        fill.style.width=(frac*100)+'%';
+        fill.classList.toggle('warn', frac<=0.5 && frac>0.2);
+        fill.classList.toggle('danger', frac<=0.2);
+        if(left>0 && document.getElementById('spec-qtimer-fill')) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+  }
+
+  function revealSpectatorAnswer({chosen,correctIndex,feedback}){
+    const modal=document.getElementById('modal');
+    if(!modal) return;
+    const optEls=modal.querySelectorAll('.opt');
+    optEls.forEach((e,i)=>{ if(i===correctIndex) e.classList.add('correct'); if(i===chosen && i!==correctIndex) e.classList.add('wrong'); });
+    const fb=document.getElementById('qfeedback');
+    if(fb) fb.innerHTML=feedback;
+    setTimeout(()=>{ const bg=document.getElementById('modal-bg'); if(bg) bg.classList.remove('show'); }, 2200);
+  }
+
+  function showSpectatorModal({icon,title,body}){
+    const modal=document.getElementById('modal'), bg=document.getElementById('modal-bg');
+    if(!modal||!bg) return;
+    modal.innerHTML=spectateTag()+(icon?`<div class="m-icon">${icon}</div>`:'')+`<h2>${title}</h2><div class="m-body">${body}</div>`;
+    if(typeof frameModal==='function') frameModal();
+    bg.classList.add('show');
+    setTimeout(()=>{ bg.classList.remove('show'); }, 2600);
+  }
+
   function adoptSyncedState(snap){
     if(!snap) return;
     suppressBroadcast = true;     // si esto dispara un endGame() acá, que no reenvíe
@@ -2031,12 +2100,11 @@ const NET = (function(){
 
   function gateControls(){
     if(mode==='off') return;
-    const rb=document.getElementById('roll-btn'), eb=document.getElementById('end-btn');
-    if(!liveTurns){ if(rb) rb.disabled=true; if(eb) eb.disabled=true; return; }
-    // sólo el jugador de turno puede tirar / terminar turno
+    const rb=document.getElementById('roll-btn');
+    if(!liveTurns){ if(rb) rb.disabled=true; return; }
+    // sólo el jugador de turno puede tirar los dados (el turno pasa solo al terminar)
     const myTurn = state && state.current===seat;
     if(rb && !myTurn) rb.disabled=true;
-    if(eb && !myTurn) eb.disabled=true;
   }
 
   /* ====================================================================
@@ -2062,7 +2130,8 @@ const NET = (function(){
     gateControls,
     afterEnterGame,
     syncState,
-    isMyTurn
+    isMyTurn,
+    turnEvent: broadcastTurnEvent
   };
 })();
 

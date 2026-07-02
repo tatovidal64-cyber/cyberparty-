@@ -881,7 +881,12 @@ body:has(#game-screen.active).light .settings-toggle{background:rgba(255,255,255
    ============================================================ */
 
 /* nombres, etiquetas y precios de casilla en la fuente futurista */
-.tile .tname,.tile .tspecial,.tile .tprice{font-family:'Orbitron','Inter',sans-serif;}
+.tile .tspecial,.tile .tprice{font-family:'Orbitron','Inter',sans-serif;}
+/* nombres de casilla: Orbitron es muy ancha para nombres de dos palabras
+   ("Social Engineering", "Suspicious Email", "Shoulder Surfing") — en
+   pantallas más chicas necesitaban 3 líneas y el "line-clamp:2" cortaba
+   la tercera a la mitad. Inter es más angosta y entra en 2 líneas. */
+.tile .tname{font-family:'Inter',sans-serif;font-weight:700;letter-spacing:-.1px;}
 .tile .tspecial{font-weight:700;letter-spacing:.3px;}
 
 /* tablero más grande: aprovechar el alto disponible y reducir el aire */
@@ -944,3 +949,135 @@ body:has(#game-screen.active).light .settings-toggle{background:rgba(255,255,255
    futura, sin tener que acordarse de repetir esta línea en cada una.
    NO BORRAR ni sacarle el `!important`. */
 body{background-attachment:fixed!important;}
+
+/* ============================================================
+   AJUSTES S14 — reskin de casillas según mockup de referencia
+   (ícono grande centrado arriba + fondo con tinte del color de
+   grupo + colores de grupo actualizados). Sólo toca el tema
+   Default (:root) y la estructura de la casilla; las paletas
+   Terminal/Alerta/Seguridad/Neón siguen con sus propios colores,
+   heredando el mismo layout de ícono grande.
+   ============================================================ */
+
+/* --- paleta Default: violeta / turquesa / cian / rosa, como el mockup --- */
+:root{
+  --g-basics:#a855f7;   /* prob: Phishing, Password, 2FA — violeta */
+  --g-aware:#2dd4bf;    /* kids: Correo sospechoso, Ing. social, Shoulder surfing — turquesa */
+  --g-data:#22d3ee;     /* waters: HTTPS, Encriptación, Hashing — cian */
+  --g-tools:#2dd4bf;    /* plant: VPN, Firewall, Antivirus — turquesa */
+  --g-malware:#ec4899;  /* indul: Malware, Ransomware, Keylogger — rosa */
+  --g-attacks:#8b5cf6;  /* spec: DDoS, Zero-Day, SQL Injection — violeta profundo */
+}
+
+/* --- ícono grande centrado arriba de cada casilla de marca --- */
+.tile .ticon-big{
+  width:34%;aspect-ratio:1;margin:1px auto 4px;
+  color:var(--neon,#3aa0ff);
+  filter:drop-shadow(0 0 5px color-mix(in srgb,var(--neon,#3aa0ff) 70%,transparent));
+}
+.tile .ticon-big svg{width:100%;height:100%;fill:currentColor;}
+/* watermark chico anterior queda en desuso (reemplazado por ticon-big) */
+.tile-wm{display:none;}
+
+/* --- fondo de casilla con un tinte sutil del color de grupo, en vez
+   de un negro parejo para todas --- */
+.tile{
+  background:linear-gradient(165deg,
+    color-mix(in srgb, var(--neon,#3aa0ff) 20%, #0d1626),
+    color-mix(in srgb, var(--neon,#3aa0ff) 10%, #060a14));
+}
+.tile.hack,.tile.luck,.tile.challenge{
+  background:linear-gradient(165deg,
+    color-mix(in srgb, var(--neon) 20%, #0d1626),
+    color-mix(in srgb, var(--neon) 10%, #060a14));
+}
+
+/* --- ícono SVG de las casillas especiales (hack/luck/challenge) toma
+   el color de neón, igual que ya hacía el label --- */
+.tile .ticon svg{width:1em;height:1em;fill:currentColor;vertical-align:middle;}
+.tile.hack .ticon,.tile.luck .ticon,.tile.challenge .ticon{color:var(--neon);}
+
+/* --- puntaje: "+N" un poco más claro que "Stars" para que se lea
+   como el dato principal, como en el mockup --- */
+.tile .tprice{color:#d7e2ff;}
+.tile .tprice .ps{color:#8fa2cf;}
+
+/* ============================================================
+   AJUSTES S15 — un solo violeta consistente + tablero más grande
+   ============================================================ */
+
+/* un único violeta para toda la familia "violeta" del tablero (antes
+   'prob'/Desafío usaban #a855f7 y 'spec' un violeta más oscuro
+   #8b5cf6 — dos tonos distintos podían leerse como inconsistentes).
+   Ahora Phishing/Contraseña/2FA/Desafío y DDoS/Zero-Day/SQL Injection
+   comparten exactamente el mismo violeta, como en la referencia. */
+:root{ --g-attacks:#a855f7; }
+
+/* tablero más grande: menos margen reservado a los costados/arriba,
+   panel lateral más angosto, y el tope de la tipografía de casilla
+   sube para que los nombres se lean más grandes con el tablero más
+   grande (antes el font-size tenía un techo de 14px que no crecía
+   aunque el tablero fuera más grande). */
+.tile{font-size:clamp(8.5px,1.9vmin,17px);}
+@media(min-width:860px){
+  #board{width:min(calc(100dvh - 50px),calc(100vw - 210px));}
+  #sidebar{width:230px;flex:0 0 230px;}
+}
+@media(max-width:859px){
+  #board{width:min(99vw,85vh);}
+}
+
+/* ============================================================
+   AJUSTES S18 — tablero más grande + fuente de casilla más angosta
+   (ver arriba, .tile .tname) para que ningún nombre necesite más de
+   2 líneas y no se corte ningún texto.
+   ============================================================ */
+.tile{font-size:clamp(9px,2vmin,18px);}
+@media(min-width:860px){
+  #board{width:min(calc(100dvh - 40px),calc(100vw - 190px));}
+  #sidebar{width:215px;flex:0 0 215px;}
+}
+@media(max-width:859px){
+  #board{width:min(99.5vw,88vh);}
+}
+
+/* nombre de casilla: hasta 3 líneas si hace falta (algunos nombres de
+   dos palabras no entran en 2 aunque sea con Inter), y el ícono se
+   achica un poco para dejarle más aire vertical al texto. */
+.tile .tname{-webkit-line-clamp:3;line-clamp:3;line-height:1.08;}
+.tile .ticon-big{width:27%;margin:1px auto 3px;}
+
+/* casillas de Suerte/Desafío/Hackeo: un poco menos de aire entre
+   ícono y etiqueta para que "Challenge"/"Desafío" entre completo
+   incluso en pantallas de celular angostas. */
+.tile.luck,.tile.challenge,.tile.hack{gap:1px;padding-top:2px;padding-bottom:1px;}
+.tile.luck .ticon,.tile.challenge .ticon,.tile.hack .ticon{font-size:1.5em;}
+.tile.luck .tspecial,.tile.challenge .tspecial,.tile.hack .tspecial{line-height:1;}
+
+/* ============================================================
+   AJUSTES S19 — fichas de color puro (sin ícono, colores exactos
+   de la referencia) + selector de avatar reducido a 6 opciones,
+   priorizando la fuente de emoji de Apple cuando el dispositivo
+   la tiene instalada (Mac/iPhone/iPad). No se puede empaquetar el
+   emoji artwork de Apple en el juego (es propiedad de Apple), pero
+   pidiendo la fuente por nombre el navegador la usa si está — y si
+   no, cae a la fuente de emoji del sistema (Windows/Android/etc).
+   ============================================================ */
+.av,.avatar-opt{
+  font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;
+}
+
+/* ============================================================
+   AJUSTES S20 — vista de espectador (Fase 2 del roadmap online)
+   Etiqueta que aparece arriba del modal espejo que ven los demás
+   jugadores mientras el que tiene el turno juega.
+   ============================================================ */
+.spectate-tag{
+  display:flex;align-items:center;gap:6px;justify-content:center;
+  font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--azure);background:rgba(59,130,246,.10);border:1px solid rgba(59,130,246,.28);
+  border-radius:999px;padding:6px 12px;margin:0 auto 12px;width:fit-content;
+}
+body.pal-neon .spectate-tag,.tile.corner ~ .spectate-tag{color:#22d3ee;background:rgba(34,211,238,.10);border-color:rgba(34,211,238,.3);}
+/* opciones de la pregunta en modo espectador: no se pueden tocar */
+#modal .opt:disabled{cursor:default;opacity:.92;}
