@@ -1657,7 +1657,7 @@ const NET = (function(){
   let suppressBroadcast = false; // true mientras se adopta un state que llegó de red, para no reenviarlo en cadena
 
   const rnd = () => Math.random().toString(36).slice(2,8);
-  function genCode(){ const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=a[Math.floor(Math.random()*a.length)]; return 'CP-'+s; }
+  function genCode(){ const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; }
   function defaultName(s){
     if(s===0){ const n=SCORM.studentName && SCORM.studentName(); if(n){ const p=n.split(',').map(x=>x.trim()); return p.length===2?(p[1]+' '+p[0]):n; } }
     return t('player')+' '+(s+1);
@@ -1785,7 +1785,7 @@ const NET = (function(){
     }
     else if(mode==='off' && lobbyView==='join'){
       lob.innerHTML=`<p class="lob-sub">${nt('enter_code')}</p>
-        <input class="lob-input" id="lob-code" placeholder="CP-····" maxlength="7" value="${autoCode||''}" autocomplete="off">
+        <input class="lob-input" id="lob-code" placeholder="····" maxlength="4" value="${autoCode||''}" autocomplete="off">
         <div class="lob-err" id="lob-err"></div>
         <div class="lob-actions">
           <button class="lob-btn" id="lob-go">${nt('join_btn')}</button>
