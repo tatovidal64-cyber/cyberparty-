@@ -1457,8 +1457,11 @@ function endGame(){
   if(typeof NET!=='undefined' && NET.syncState) NET.syncState();
   const ranked=[...state.players].sort((a,b)=> (b.points-a.points) || (accuracy(b)-accuracy(a)) );
   const winner=ranked[0];
-  // SCORM score (Player 1 = enrolled learner): 60% quiz accuracy + 40% points standing
-  const learner=state.players[0];
+  // SCORM score: en local, "Player 1" es el enrolled learner (un solo dispositivo).
+  // En online, cada dispositivo tiene su propia sesión de LMS, así que cada
+  // quien reporta según SU PROPIO asiento, no siempre el 0.
+  const mySeat = (typeof NET!=='undefined' && NET.mode!=='off') ? NET.seat : 0;
+  const learner=state.players[mySeat] || state.players[0];
   const maxPts=Math.max(...state.players.map(p=>p.points),1);
   const ptsFactor=Math.max(0,learner.points)/maxPts;
   const score=Math.round(100*(0.6*accuracy(learner)+0.4*ptsFactor));
@@ -1470,7 +1473,7 @@ function endGame(){
     <div class="rrow ${i===0?'first':''}">
       <div class="rk">${i+1}</div>
       ${avatarDisc(p,'rtok')}
-      <div class="rmeta"><div class="rname">${p.name}${p.id===0?' · '+t('you_tag'):''}</div>
+      <div class="rmeta"><div class="rname">${p.name}${p.id===mySeat?' · '+t('you_tag'):''}</div>
       <div class="racc">${tf('rank_meta',{acc:(p.attempted? Math.round(100*p.correct/p.attempted):0),correct:p.correct,attempted:p.attempted})}</div></div>
       <div class="rnet">⭐ ${p.points}</div>
     </div>`).join("");
@@ -1626,6 +1629,7 @@ const NET = (function(){
     not_found:{en:"Room not found. Check the code.", es:'No se encontró la sala. Revisá el código.'},
     code_label:{en:'Room code', es:'Código de la sala'},
     copy_link:{en:'Copy link', es:'Copiar link'},
+    copy_code:{en:'Copy code', es:'Copiar código'},
     copied:{en:'Copied!', es:'¡Copiado!'},
     pick_token:{en:'Pick your token', es:'Elegí tu ficha'},
     your_name:{en:'Your name', es:'Tu nombre'},
@@ -1718,10 +1722,13 @@ const NET = (function(){
     .lob-btn{border:2px solid var(--brand,#324BAA);border-radius:11px;padding:12px 14px;font:600 14px/1 var(--sans,system-ui);letter-spacing:.02em;cursor:pointer;background:#fff;color:var(--brand,#324BAA);transition:transform .08s,background .12s}
     .lob-btn:hover:not(:disabled){transform:translateY(-1px);background:var(--cream,#EEF3FF)} .lob-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
     .lob-btn.ghost{background:#fff;color:var(--brand,#324BAA);border:1px solid var(--line,#dbe3f7)}
-    .lob-code{font:700 26px/1 var(--mono,ui-monospace,monospace);letter-spacing:.18em;color:var(--brand,#324BAA);text-align:center;padding:14px;border:1px dashed var(--brand,#324BAA);border-radius:12px;background:var(--cream,#EEF3FF);user-select:all;margin:0 0 10px}
+    .lob-code-row{display:flex;gap:8px;align-items:stretch;margin:0 0 10px}
+    .lob-code{flex:1;font:700 26px/1 var(--mono,ui-monospace,monospace);letter-spacing:.18em;color:var(--brand,#324BAA);text-align:center;padding:14px;border:1px dashed var(--brand,#324BAA);border-radius:12px;background:var(--cream,#EEF3FF);user-select:all;margin:0}
+    .lob-code-row button{border:none;border-radius:12px;padding:0 16px;font:600 12px/1 var(--sans,system-ui);cursor:pointer;background:var(--azure,#11ACED);color:#fff;white-space:nowrap;transition:background .15s}
+    .lob-code-row button.ok,.lob-link button.ok{background:var(--green,#2FA84F)}
     .lob-link{display:flex;gap:8px;align-items:center;margin:0 0 18px}
     .lob-link input{flex:1;font:500 12px/1.3 var(--mono,ui-monospace,monospace);padding:10px;border-radius:9px;border:1px solid var(--line,#dbe3f7);background:#fff;color:var(--muted,#5b6790);overflow:hidden;text-overflow:ellipsis}
-    .lob-link button{border:none;border-radius:9px;padding:10px 12px;font:600 12px/1 var(--sans,system-ui);cursor:pointer;background:var(--azure,#11ACED);color:#fff;white-space:nowrap}
+    .lob-link button{border:none;border-radius:9px;padding:10px 12px;font:600 12px/1 var(--sans,system-ui);cursor:pointer;background:var(--azure,#11ACED);color:#fff;white-space:nowrap;transition:background .15s}
     .lob-input{width:100%;font:600 18px/1 var(--mono,ui-monospace,monospace);letter-spacing:.16em;text-align:center;text-transform:uppercase;padding:13px;border-radius:11px;border:1px solid var(--line,#dbe3f7);background:#fff;color:var(--ink,#0E1430);margin:0 0 12px}
     .lob-input:focus{outline:none;border-color:var(--brand,#324BAA)}
     .lob-err{color:var(--red,#D8323C);font-size:13px;margin:0 0 10px;min-height:18px}
@@ -1819,7 +1826,7 @@ const NET = (function(){
     let head='';
     if(isHost){
       head=`<div class="lob-label">${nt('code_label')}</div>
-        <div class="lob-code">${code}</div>
+        <div class="lob-code-row"><div class="lob-code">${code}</div><button id="lob-copy-code">${nt('copy_code')}</button></div>
         <div class="lob-link"><input id="lob-share" readonly value="${link}"><button id="lob-copy">${nt('copy_link')}</button></div>`;
     }else{
       head=`<div class="lob-label">${nt('in_room')} · ${code}</div>`;
@@ -1856,8 +1863,10 @@ const NET = (function(){
         : `<p class="lob-sub" style="text-align:center;color:var(--brand,#11ACED)">${nt('waiting_host')}</p>`);
 
     if(isHost){
+      const cc=lob.querySelector('#lob-copy-code');
+      cc.onclick=()=>{ try{ navigator.clipboard.writeText(code); }catch(e){} cc.textContent=nt('copied'); cc.classList.add('ok'); setTimeout(()=>{ cc.textContent=nt('copy_code'); cc.classList.remove('ok'); },1400); };
       const sh=lob.querySelector('#lob-copy');
-      sh.onclick=()=>{ const i=lob.querySelector('#lob-share'); i.select(); try{ navigator.clipboard.writeText(link); }catch(e){} sh.textContent=nt('copied'); setTimeout(()=>sh.textContent=nt('copy_link'),1400); };
+      sh.onclick=()=>{ const i=lob.querySelector('#lob-share'); i.select(); try{ navigator.clipboard.writeText(link); }catch(e){} sh.textContent=nt('copied'); sh.classList.add('ok'); setTimeout(()=>{ sh.textContent=nt('copy_link'); sh.classList.remove('ok'); },1400); };
       const st=lob.querySelector('#lob-start'); if(st) st.onclick=()=>{ SFX.click(); hostStart(); };
       const lv=lob.querySelector('#lob-leave'); if(lv) lv.onclick=()=>{ SFX.click(); leaveRoom(); };
     }
